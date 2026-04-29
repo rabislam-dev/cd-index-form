@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Continuing Dialysis Index — Assessment Form</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;background:#e8e8e8}
+.app{max-width:920px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 0 12px rgba(0,0,0,.2)}
+
+/* ── top bar ── */
+.topbar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#1a3a5c;flex-wrap:wrap}
+.topbar span{font-size:11px;color:#adc8e8;margin-right:4px}
+.tbtn{padding:4px 11px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:3px;cursor:pointer;font-size:11px;white-space:nowrap}
+.tbtn:hover{background:rgba(255,255,255,.22)}
+.tbtn.danger{border-color:#e55;color:#fbb}
+#saveMsg{font-size:11px;color:#7ef0a0;font-style:italic;min-width:120px}
+
+/* ── tabs ── */
+.tabs{display:flex;background:#1a3a5c;border-bottom:3px solid #0e2540}
+.tab{flex:1;padding:10px 6px;background:none;border:none;color:rgba(255,255,255,.55);font-size:11.5px;cursor:pointer;border-right:1px solid rgba(255,255,255,.1);transition:background .15s;text-align:center}
+.tab:hover{background:rgba(255,255,255,.1)}
+.tab.active{background:rgba(255,255,255,.18);color:#fff;font-weight:bold}
+
+/* ── pages ── */
+.page{display:none;padding:18px}
+.page.active{display:block}
+
+/* ── section headers ── */
+.fhdr{padding:11px 14px;margin-bottom:14px}
+.fhdr h1{font-size:17px;color:#fff}
+.fhdr .sub{font-size:10.5px;color:rgba(255,255,255,.75);margin-top:3px}
+.bg-teal{background:#0d6b5e}
+.bg-navy{background:#1a3a5c}
+.bg-slate{background:#2e4057}
+.bg-purple{background:#5e2d91}
+
+/* ── patient info row ── */
+.prow{display:grid;grid-template-columns:1fr auto auto;gap:8px;border:1px solid #ccc;padding:8px 10px;background:#f7f7f7;margin-bottom:14px}
+.prow .pf{display:flex;align-items:center;gap:7px}
+.prow label{font-weight:bold;font-size:11.5px;white-space:nowrap;color:#333}
+.prow input{border:none;border-bottom:1px solid #999;padding:2px 4px;font-size:12px;outline:none;background:transparent;min-width:100px}
+
+/* ── generic section box ── */
+.sec{border:1px solid #d4d4d4;margin-bottom:14px}
+.sec-hdr{padding:7px 12px;font-weight:bold;font-size:12.5px;color:#fff}
+.sec-hdr .note{font-weight:normal;font-size:10.5px;opacity:.85}
+.sec-body{padding:12px}
+
+/* ── trigger items ── */
+.trig{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.trig:last-of-type{border-bottom:none}
+.trig input[type=checkbox]{width:16px;height:16px;margin-top:1px;cursor:pointer;flex-shrink:0}
+.trig label{cursor:pointer;line-height:1.4}
+.trig-result{margin-top:10px;padding:8px 12px;font-weight:bold;font-size:12px;border-radius:3px}
+.go{background:#d4f5e2;color:#1a6b3a;border:1px solid #9de0b6}
+.stop{background:#fdebd0;color:#8c3a00;border:1px solid #f5c6a0}
+
+/* ── 4AT table ── */
+.at4t{width:100%;border-collapse:collapse}
+.at4t th{background:#2e4057;color:#fff;padding:6px 10px;font-size:11.5px;border:1px solid #243449;text-align:left}
+.at4t td{padding:7px 10px;border:1px solid #ddd;font-size:12px;vertical-align:middle}
+.at4t tr:nth-child(even) td{background:#f8f9fa}
+select.at4s{padding:4px 6px;border:2px solid #2e4057;border-radius:3px;font-size:13px;text-align:center;background:#fff;cursor:pointer;outline:none}
+
+/* ── CFS grid ── */
+.cfs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.cfs-card{border:1px solid #ccc;border-radius:4px;padding:8px;cursor:pointer;transition:background .12s,border-color .12s;user-select:none}
+.cfs-card:hover{background:#e8f4ff;border-color:#1a3a5c}
+.cfs-card.sel{background:#d0e8ff;border-color:#1a3a5c;border-width:2px}
+.cfs-card.sel78{background:#fef0d0;border-color:#b06000;border-width:2px}
+.cfs-card.sel9{background:#fde8e8;border-color:#c0392b;border-width:2px}
+.cfs-n{font-weight:bold;font-size:15px;color:#1a3a5c}
+.cfs-card.sel78 .cfs-n{color:#b06000}
+.cfs-card.sel9 .cfs-n{color:#c0392b}
+.cfs-lb{font-weight:bold;font-size:11.5px;margin:2px 0}
+.cfs-ds{font-size:10.5px;color:#666}
+.cfs-pt{font-size:10.5px;color:#888;margin-top:3px}
+
+/* ── domain score row ── */
+.dsr{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px;padding-top:8px;border-top:1px dashed #ddd}
+.dsr .lbl{font-size:12px;color:#555}
+.dsv{font-size:17px;font-weight:bold;color:#1a3a5c;background:#eaf2ff;border:2px solid #1a3a5c;padding:2px 12px;min-width:64px;text-align:center}
+
+/* ── scoring legend ── */
+.sleg{font-size:10.5px;color:#666;margin-top:6px}
+.sleg span{display:inline-block;margin-right:10px;padding:1px 6px;background:#f0f0f0;border-radius:2px}
+
+/* ── treatment burden table ── */
+.tbt{width:100%;border-collapse:collapse;margin-top:8px}
+.tbt th{background:#eaf2f8;padding:6px 10px;text-align:left;font-size:11.5px;border:1px solid #ccc}
+.tbt td{padding:6px 10px;border:1px solid #e5e5e5;font-size:12px;vertical-align:middle}
+.tbt tr:nth-child(even) td{background:#f9f9f9}
+.tbt td:last-child{text-align:center}
+.tbt input[type=checkbox]{width:16px;height:16px;cursor:pointer}
+
+/* ── IPOS number input ── */
+.inum{display:flex;align-items:center;gap:10px;margin-top:8px}
+.inum input{width:80px;padding:5px;border:2px solid #5e2d91;font-size:15px;text-align:center;border-radius:3px;outline:none}
+
+/* ── surprise question ── */
+.sqopts{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.sqopt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #ccc;border-radius:3px;cursor:pointer;font-size:13px;transition:background .12s}
+.sqopt:hover{background:#f5f5f5}
+.sqopt input{width:16px;height:16px;cursor:pointer}
+.sqopt.sy{background:#d4f5e2;border-color:#1a6b3a}
+.sqopt.sn{background:#fde8e8;border-color:#c0392b}
+
+/* ── total score bar ── */
+.totbar{background:#1a3a5c;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-radius:3px}
+.totbar .tl{font-size:15px;font-weight:bold}
+.totval{font-size:26px;font-weight:bold;background:#fff;color:#1a3a5c;padding:3px 16px;border-radius:4px;min-width:80px;text-align:center}
+
+/* ── interpretation grid ── */
+.igrid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin-bottom:14px}
+.icell{padding:10px;border-right:1px solid #ccc;font-size:11.5px;border-top:4px solid transparent;transition:border-top-color .2s}
+.icell:last-child{border-right:none}
+.icell .ir{font-weight:bold;font-size:14px;margin-bottom:3px}
+.icell .ilv{font-weight:bold;margin-bottom:5px}
+.ic0{background:#f0fbf4}.ic0 .ir{color:#1a6b3a}.ic0.on{border-top-color:#1a6b3a;background:#d4f5e2}
+.ic1{background:#fefce8}.ic1 .ir{color:#b07d00}.ic1.on{border-top-color:#b07d00;background:#fef3b0}
+.ic2{background:#fff4ed}.ic2 .ir{color:#b05000}.ic2.on{border-top-color:#b05000;background:#fde0c5}
+.ic3{background:#fdf0f0}.ic3 .ir{color:#b02020}.ic3.on{border-top-color:#b02020;background:#fbd5d5}
+
+/* ── SDM section ── */
+.sdm-box{border:2px solid #1a3a5c;padding:14px;margin-bottom:14px;background:#eaf2ff;border-radius:3px}
+.sdm-title{font-weight:bold;color:#1a3a5c;margin-bottom:10px;font-size:12.5px}
+.sdm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sdm-opts label{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:12px}
+.sdm-opts input{width:15px;height:15px}
+.conv-box{background:#fff;padding:10px;border:1px solid #acd6f5;border-radius:3px}
+.conv-box h4{font-size:11.5px;margin-bottom:6px;color:#1a3a5c}
+.conv-box p{font-size:11px;padding:3px 0;color:#444}
+.conv-box p::before{content:"· "}
+
+/* ── clinician row ── */
+.clinrow{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ccc;margin-bottom:14px}
+.clinf{padding:9px 10px;border-right:1px solid #ccc}
+.clinf:last-child{border-right:none}
+.clinf label{display:block;font-size:10px;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.clinf input{width:100%;border:none;border-bottom:1px solid #bbb;padding:2px 0;font-size:12px;outline:none;background:transparent}
+
+/* ── reference tables ── */
+.reft{width:100%;border-collapse:collapse;margin-bottom:2px}
+.reft th{background:#1a3a5c;color:#fff;padding:7px 10px;font-size:11.5px;border:1px solid #14304e;text-align:left}
+.reft td{padding:7px 10px;border:1px solid #ddd;font-size:11.5px;vertical-align:top}
+.reft tr:nth-child(even) td{background:#f5f8fc}
+.reft tr.reddanger td{background:#fde8e8;font-weight:bold}
+.at4-interp{display:flex;gap:8px;flex-wrap:wrap;padding:9px 10px;background:#f0f4f8;border:1px solid #ddd;border-top:none;margin-bottom:14px}
+.at4-interp span{padding:2px 8px;border-radius:3px;font-size:11px}
+.at4-i0{background:#d4f5e2;color:#1a6b3a}
+.at4-i1{background:#fef3b0;color:#7a5a00}
+.at4-i2{background:#fde0c5;color:#7a3000}
+.at4-i3{background:#fbd5d5;color:#8b0000}
+
+/* ── IPOS table ── */
+.ipost{width:100%;border-collapse:collapse}
+.ipost th{background:#5e2d91;color:#fff;padding:7px 6px;font-size:11px;text-align:center;border:1px solid #4a1f78}
+.ipost th:first-child{text-align:left;padding-left:10px}
+.ipost td{padding:5px 6px;border:1px solid #e0d0f5;font-size:12px;vertical-align:middle}
+.ipost td:first-child{padding-left:10px}
+.ipost tr:nth-child(even) td{background:#faf5ff}
+.ipost td.sc{text-align:center}
+.rlabel{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #ccc;border-radius:50%;cursor:pointer;font-size:12px;font-weight:bold;transition:all .12s;user-select:none}
+.rlabel:hover{background:#ede0ff;border-color:#5e2d91}
+.rs0{background:#d4f5e2;border-color:#27ae60;color:#27ae60}
+.rs1{background:#fef9e7;border-color:#c9a000;color:#8a6d00}
+.rs2{background:#fde0c5;border-color:#e67e22;color:#7a3500}
+.rs3{background:#fbd5d5;border-color:#e74c3c;color:#8b0000}
+.rs4{background:#5e2d91;border-color:#5e2d91;color:#fff}
+.ipos-totrow td{background:#5e2d91;color:#fff;font-weight:bold;font-size:14px;border-color:#4a1f78}
+.ipos-sec-hdr td{font-weight:bold;font-size:12px;padding:7px 10px;border:1px solid #ddd}
+.ipos-phy-hdr td{background:#e8f4ff;color:#1a3a5c;border-color:#b8d8f5}
+.ipos-psy-hdr td{background:#f0e8ff;color:#5e2d91;border-color:#c9a8e8}
+.ipos-scale-note td{font-size:11px;font-style:italic;padding:4px 10px;background:#faf5ff;color:#5e2d91;border:1px solid #e0d0f5}
+.ipos-rev-row td:first-child{font-style:italic}
+.ipos-psy-row td{background:#fdf8ff}
+
+/* ── alerts ── */
+.alert{padding:9px 13px;border-radius:3px;margin-top:8px;font-weight:bold;font-size:12px;display:none}
+.alert.show{display:block}
+.a-danger{background:#fbd5d5;border:2px solid #c0392b;color:#7a0000}
+.a-warn{background:#fef3b0;border:2px solid #e0b800;color:#6a4800}
+.a-info{background:#d0e8ff;border:2px solid #2980b9;color:#1a3a5c}
+.a-ok{background:#d4f5e2;border:2px solid #27ae60;color:#1a6b3a}
+
+/* ── notes / textarea ── */
+textarea{width:100%;border:1px solid #ccc;padding:7px;font-size:12px;font-family:Arial,sans-serif;resize:vertical;outline:none;border-radius:2px}
+textarea:focus{border-color:#1a3a5c}
+
+/* ── nav buttons ── */
+.navrow{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#f5f5f5;border-top:1px solid #ddd;flex-wrap:wrap;gap:8px}
+.nbtn{padding:9px 20px;border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:bold;color:#fff}
+.nbtn:disabled{opacity:.35;cursor:not-allowed}
+.nbtn.prev{background:#7f8c8d}
+.nbtn.next{background:#1a3a5c}
+.nbtn.print{background:#0d6b5e}
+
+/* ── footer ── */
+.ffooter{font-size:10px;color:#aaa;padding:10px 14px;border-top:1px solid #eee;margin-top:16px;font-style:italic}
+
+/* ── mobile responsive ── */
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
+
+@media(max-width:720px){
+  /* top bar */
+  .topbar{padding:6px 10px;gap:5px}
+  .tbtn{padding:7px 10px;font-size:12px}
+
+  /* tabs */
+  .tab{font-size:10px;padding:9px 4px}
+
+  /* pages */
+  .page{padding:12px}
+
+  /* section header */
+  .fhdr h1{font-size:15px}
+  .sec-hdr .note{display:block;margin-top:3px}
+
+  /* patient row – stack vertically */
+  .prow{grid-template-columns:1fr;gap:8px}
+  .prow .pf{gap:8px}
+  .prow input{min-width:0;flex:1}
+
+  /* CFS grid: 2 columns */
+  .cfs-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* interpretation grid: 2×2 */
+  .igrid{grid-template-columns:repeat(2,1fr)}
+  .icell:nth-child(2){border-right:none}
+  .icell:nth-child(3){border-top:1px solid #ccc}
+
+  /* SDM */
+  .sdm-grid{grid-template-columns:1fr}
+
+  /* clinician row */
+  .clinrow{grid-template-columns:1fr}
+  .clinf{border-right:none;border-bottom:1px solid #ccc}
+  .clinf:last-child{border-bottom:none}
+
+  /* total bar */
+  .totbar{flex-direction:column;gap:8px;text-align:center;padding:12px 16px}
+
+  /* larger touch targets */
+  .trig input[type=checkbox]{width:20px;height:20px;margin-top:2px}
+  .tbt input[type=checkbox]{width:20px;height:20px}
+  .sqopt{padding:13px 14px}
+  .sqopt input{width:20px;height:20px;flex-shrink:0}
+  .nbtn{padding:12px 18px;font-size:14px}
+  .rlabel{width:36px;height:36px;font-size:13px}
+  select.at4s{font-size:15px;padding:6px 8px}
+
+  /* score row */
+  .dsr{flex-wrap:wrap}
+
+  /* scoring legend: wrap */
+  .sleg span{margin-bottom:4px}
+
+  /* IPOS bottom panel */
+  .ipos-bottom{grid-template-columns:1fr!important}
+}
+
+@media(max-width:480px){
+  body{font-size:14px}
+  .tab{font-size:9.5px;padding:8px 3px}
+  .totval{font-size:22px}
+  .cfs-grid{grid-template-columns:repeat(2,1fr)}
+  .igrid{grid-template-columns:1fr 1fr}
+}
+
+/* ── print ── */
+@media print{
+  .topbar,.tabs,.navrow{display:none!important}
+  body{background:#fff}
+  .app{box-shadow:none;max-width:none}
+  .page{display:block!important;padding:14px;page-break-after:always}
+  .page:last-child{page-break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span>CD Index Assessment Form</span>
+  <button class="tbtn" onclick="saveLocal()">💾 Save</button>
+  <button class="tbtn" onclick="exportJSON()">⬇ Export File</button>
+  <button class="tbtn" onclick="importJSON()">⬆ Import File</button>
+  <button class="tbtn" onclick="window.print()">🖨 Print / PDF</button>
+  <button class="tbtn danger" onclick="clearAll()">✕ Clear</button>
+  <span id="saveMsg"></span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage(0)">Page 1 · Triggers &amp; Domains 1–3</button>
+  <button class="tab" onclick="showPage(1)">Page 2 · Domain 4 &amp; Score</button>
+  <button class="tab" onclick="showPage(2)">Page 3 · Reference Guide</button>
+  <button class="tab" onclick="showPage(3)">Page 4 · IPOS-Renal (Patient)</button>
+</div>
+
+<!-- ═══════════════════════════════ PAGE 1 ═══════════════════════════════ -->
+<div class="page active" id="pg0">
+  <div class="fhdr bg-navy">
+    <h1>Continuing Dialysis Index — Assessment Form</h1>
+    <div class="sub">Page 1 of 4 · Complete for triggered patients only · Adult in-centre haemodialysis · UKKA Supportive Care SIG</div>
+  </div>
+
+  <div class="prow">
+    <div class="pf"><label>Patient ID</label><input type="text" id="pid" oninput="sync()"></div>
+    <div class="pf"><label>Date</label><input type="date" id="pdate" oninput="sync()"></div>
+    <div class="pf"><label>Assessor</label><input type="text" id="pasr" placeholder="Name" oninput="sync()"></div>
+  </div>
+
+  <!-- Trigger Check -->
+  <div class="sec">
+    <div class="sec-hdr bg-teal">Step 1 — Trigger Check <span class="note">· Tick any that apply. If none apply, stop here — no full assessment needed.</span></div>
+    <div class="sec-body">
+      <div class="trig"><input type="checkbox" id="t1" onchange="updateTrig()"><label for="t1">CFS ≥ 5 (mildly frail or above) at this review</label></div>
+      <div class="trig"><input type="checkbox" id="t2" onchange="updateTrig()"><label for="t2">≥ 2 unplanned admissions in the past 6 months</label></div>
+      <div class="trig"><input type="checkbox" id="t3" onchange="updateTrig()"><label for="t3">IPOS-Renal total ≥ 10 at last routine collection</label></div>
+      <div class="trig"><input type="checkbox" id="t4" onchange="updateTrig()"><label for="t4">On HD ≥ 3 years with no documented goals-of-care conversation in past 12 months</label></div>
+      <div class="trig"><input type="checkbox" id="t5" onchange="updateTrig()"><label for="t5">Clinician would answer "No" to the Surprise Question at this review</label></div>
+      <div class="trig"><input type="checkbox" id="t6" onchange="updateTrig()"><label for="t6">Significant clinical change, or patient-initiated concern about continuing dialysis</label></div>
+      <div id="trigRes" class="trig-result stop">No trigger ticked — routine holistic review only. No full assessment needed.</div>
+    </div>
+  </div>
+
+  <!-- 4AT -->
+  <div class="sec">
+    <div class="sec-hdr bg-slate">Prerequisite — 4AT Cognitive Screen <span class="note">· Complete before any triggered SDM conversation · Unscored; does not contribute to CD Index total · See Page 3 for guide</span></div>
+    <div class="sec-body">
+      <div class="tbl-scroll"><table class="at4t">
+        <thead><tr><th style="width:14%">Component</th><th style="width:38%">What to do</th><th style="width:38%">Scoring</th><th style="width:10%">Score</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>[A] Alertness</strong></td>
+            <td>Observe during assessment. Is the patient fully alert, not agitated?</td>
+            <td>Normal or mild sleepiness &lt;10 s = 0 · Clearly abnormal = 4</td>
+            <td><select class="at4s" id="a4a" onchange="upd4AT()"><option value="">—</option><option value="0">0</option><option value="4">4</option></select></td>
+          </tr>
+          <tr>
+            <td><strong>[4] AMT-4</strong></td>
+            <td>Ask: age, date of birth, name of place, current year.</td>
+            <td>All 4 or 3 correct = 0 · 2 or fewer correct = 1</td>
+            <td><select class="at4s" id="a4f" onchange="upd4AT()"><option value="">—</option><option value="0">0</option><option value="1">1</option></select></td>
+          </tr>
+          <tr>
+            <td><strong>[T] Attention</strong></td>
+            <td>Name the months of the year backwards from December.</td>
+            <td>≥ 7 months = 0 · &lt;7 or refuses = 1 · Unable/untestable = 2</td>
+            <td><select class="at4s" id="a4t" onchange="upd4AT()"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td>
+          </tr>
+          <tr>
+            <td><strong>[C] Acute change</strong></td>
+            <td>Ask carer or check nursing notes. Significant mental status change in past 2 weeks?</td>
+            <td>No = 0 · Yes = 4</td>
+            <td><select class="at4s" id="a4c" onchange="upd4AT()"><option value="">—</option><option value="0">0</option><option value="4">4</option></select></td>
+          </tr>
+        </tbody>
+      </table></div>
+      <div class="dsr"><span class="lbl">4AT Total (unscored)</span><span class="dsv" id="at4tot">— / 12</span></div>
+      <div class="alert a-info" id="at4alert"></div>
+    </div>
+  </div>
+
+  <!-- Domain 1 CFS -->
+  <div class="sec">
+    <div class="sec-hdr bg-teal">Domain 1 — Frailty <span class="note">· Clinical Frailty Scale (CFS) · see Page 3 for full descriptions</span></div>
+    <div class="sec-body">
+      <div class="cfs-grid" id="cfsGrid"></div>
+      <div class="alert a-warn" id="cfs78alert">⚠ CFS 7–8 — Score 4 pts recorded AND direct MDT referral indicated regardless of CD Index total.</div>
+      <div class="alert a-danger" id="cfs9alert">⚠ CFS 9 (Terminally ill) — Direct MDT trigger regardless of CD Index total score. Unscored.</div>
+      <div class="dsr"><span class="lbl">Domain 1 Score</span><span class="dsv" id="d1sc">— / 4</span></div>
+      <div class="sleg"><span>CFS 1–3 = 0 pts</span><span>CFS 4 = 1 pt</span><span>CFS 5 = 2 pts</span><span>CFS 6 = 3 pts</span><span style="color:#b06000">CFS 7–8 = 4 pts + MDT</span><span style="color:#c0392b">CFS 9 = Direct MDT (unscored)</span></div>
+    </div>
+  </div>
+
+  <!-- Domain 2 -->
+  <div class="sec">
+    <div class="sec-hdr bg-purple">Domain 2 — Symptom &amp; Concern Burden <span class="note">· IPOS-Renal · patient form on Page 4 · total auto-filled when Page 4 is completed</span></div>
+    <div class="sec-body">
+      <p style="font-size:12px;color:#555;margin-bottom:8px">Enter total from completed IPOS-Renal form (Page 4). The gap between 0–9 and 10–19 is intentional.</p>
+      <div class="inum">
+        <label style="font-weight:bold">IPOS-Renal Total:</label>
+        <input type="number" id="iposIn" min="0" max="68" placeholder="0–68" oninput="updD2()">
+        <span style="color:#888;font-size:12px">/ 68</span>
+      </div>
+      <div class="dsr"><span class="lbl">Domain 2 Score</span><span class="dsv" id="d2sc">— / 4</span></div>
+      <div class="sleg"><span>0–9 = 0 pts</span><span>10–19 = 2 pts</span><span>20–29 = 3 pts</span><span>≥30 = 4 pts</span></div>
+    </div>
+  </div>
+
+  <!-- Domain 3 -->
+  <div class="sec">
+    <div class="sec-hdr bg-teal">Domain 3 — Treatment Burden <span class="note">· Tick each that applies — past 6 months</span></div>
+    <div class="sec-body">
+      <div class="tbl-scroll"><table class="tbt">
+        <thead><tr><th style="width:5%">#</th><th style="width:58%">Item</th><th style="width:22%">Source</th><th style="width:15%">Yes?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Recovery time &gt; 6 hours after session</td><td>Ask patient</td><td><input type="checkbox" id="tb1" onchange="updD3()"></td></tr>
+          <tr><td>2</td><td>Intradialytic symptoms in ≥ 2 of last 4 sessions</td><td>Patient + nursing</td><td><input type="checkbox" id="tb2" onchange="updD3()"></td></tr>
+          <tr><td>3</td><td>≥ 2 unplanned admissions in past 6 months</td><td>EPR</td><td><input type="checkbox" id="tb3" onchange="updD3()"></td></tr>
+          <tr><td>4</td><td>Vascular access complication in past 6 months</td><td>EPR</td><td><input type="checkbox" id="tb4" onchange="updD3()"></td></tr>
+          <tr><td>5</td><td>Carer strain identified</td><td>Carer enquiry</td><td><input type="checkbox" id="tb5" onchange="updD3()"></td></tr>
+          <tr><td>6</td><td>Patient reports dialysis as "too burdensome"</td><td>Ask patient</td><td><input type="checkbox" id="tb6" onchange="updD3()"></td></tr>
+        </tbody>
+      </table></div>
+      <div class="dsr"><span class="lbl">Domain 3 Score</span><span class="dsv" id="d3sc">— / 2</span></div>
+      <div class="sleg"><span>0–1 ticked = 0 pts</span><span>2–3 ticked = 1 pt</span><span>4–6 ticked = 2 pts</span></div>
+    </div>
+  </div>
+
+  <div class="ffooter">The Continuing Dialysis Project · Adult in-centre haemodialysis only (not PD) · Service evaluation tool; not a validated clinical instrument · Decisions remain the responsibility of the clinical team in partnership with the patient and family.</div>
+  <div class="navrow">
+    <button class="nbtn prev" disabled>← Previous</button>
+    <button class="nbtn next" onclick="showPage(1)">Next: Domain 4 &amp; Score →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE 2 ═══════════════════════════════ -->
+<div class="page" id="pg1">
+  <div class="fhdr bg-navy">
+    <h1>Continuing Dialysis Index — Assessment Form</h1>
+    <div class="sub">Page 2 of 4 · Domain 4, Total Score, Interpretation, and Documentation</div>
+  </div>
+
+  <div class="prow">
+    <div class="pf"><label>Patient ID</label><input type="text" id="pid2" readonly placeholder="(from page 1)"></div>
+    <div class="pf"><label>Date</label><input type="date" id="pdate2" readonly></div>
+    <div class="pf"><label>Assessor</label><input type="text" id="pasr2" readonly placeholder="(from page 1)"></div>
+  </div>
+
+  <!-- Domain 4 -->
+  <div class="sec">
+    <div class="sec-hdr bg-teal">Domain 4 — Clinical Trigger · Surprise Question</div>
+    <div class="sec-body">
+      <p style="font-size:14px;font-style:italic;font-weight:bold;text-align:center;padding:8px 0">"Would I be surprised if this patient died within the next 12 months?"</p>
+      <div class="sqopts">
+        <label class="sqopt" id="sqYlbl">
+          <input type="radio" name="sq" id="sqY" value="yes" onchange="updD4()">
+          <span>&#10003; Yes, I <strong>would</strong> be surprised → 0 pts</span>
+        </label>
+        <label class="sqopt" id="sqNlbl">
+          <input type="radio" name="sq" id="sqN" value="no" onchange="updD4()">
+          <span>&#10007; No, I would <strong>not</strong> be surprised → 2 pts <em style="color:#c0392b">(auto-escalates regardless of total)</em></span>
+        </label>
+      </div>
+      <div class="alert a-danger" id="sqAlert">⚠ Surprise Question "No" — Auto-escalates to senior clinician + MDT regardless of CD Index total.</div>
+      <div class="dsr"><span class="lbl">Domain 4 Score</span><span class="dsv" id="d4sc">— / 2</span></div>
+    </div>
+  </div>
+
+  <!-- Total -->
+  <div class="totbar">
+    <span class="tl">CD Index Total (Domains 1 + 2 + 3 + 4)</span>
+    <span class="totval" id="totalSc">— / 12</span>
+  </div>
+
+  <!-- Interpretation -->
+  <div class="igrid">
+    <div class="icell ic0" id="ic0"><div class="ir">0–2</div><div class="ilv">Low</div><div>Routine review; document goals of care annually.</div></div>
+    <div class="icell ic1" id="ic1"><div class="ir">3–5</div><div class="ilv">Moderate</div><div>Structured SDM; address reversible burdens.</div></div>
+    <div class="icell ic2" id="ic2"><div class="ir">6–9</div><div class="ilv">High</div><div>Senior clinician + MDT; advance care planning.</div></div>
+    <div class="icell ic3" id="ic3"><div class="ir">≥10</div><div class="ilv">Very high</div><div>Urgent MDT review; align treatment with priorities.</div></div>
+  </div>
+
+  <!-- SDM -->
+  <div class="sdm-box">
+    <div class="sdm-title">If score ≥ 3 — Document SDM conversation covering <u>all</u> relevant options · Target: within 4 weeks of assessment</div>
+    <div class="sdm-grid">
+      <div class="sdm-opts">
+        <label><input type="checkbox" id="sdm1"> Continue dialysis on current prescription</label>
+        <label><input type="checkbox" id="sdm2"> Modify regimen (frequency / duration / modality)</label>
+        <label><input type="checkbox" id="sdm3"> Transition to Conservative Kidney Management (CKM)</label>
+      </div>
+      <div class="conv-box">
+        <h4>Conversation prompts:</h4>
+        <p>What does a good day look like for you?</p>
+        <p>What does dialysis give you that matters most?</p>
+        <p>What does it cost you that worries you?</p>
+        <p>Would you like to discuss care without dialysis?</p>
+      </div>
+    </div>
+    <div style="margin-top:11px">
+      <label style="font-size:12px;font-weight:bold;display:block;margin-bottom:4px;color:#1a3a5c">Notes from SDM conversation:</label>
+      <textarea id="sdmNotes" rows="4" placeholder="Document key points from the conversation here..."></textarea>
+    </div>
+  </div>
+
+  <!-- Clinician -->
+  <div class="clinrow">
+    <div class="clinf"><label>Clinician name</label><input type="text" id="cname" placeholder="Full name"></div>
+    <div class="clinf"><label>Designation</label><input type="text" id="cdesig" placeholder="e.g. Consultant Nephrologist"></div>
+    <div class="clinf"><label>Signature / Date</label><input type="text" id="csig" placeholder="Signed + date"></div>
+  </div>
+
+  <div class="ffooter">The Continuing Dialysis Project · Adult in-centre haemodialysis only (not PD) · Service evaluation tool; not a validated clinical instrument.</div>
+  <div class="navrow">
+    <button class="nbtn prev" onclick="showPage(0)">← Previous</button>
+    <button class="nbtn next" onclick="showPage(2)">Next: Reference Guide →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE 3 ═══════════════════════════════ -->
+<div class="page" id="pg2">
+  <div class="fhdr bg-slate">
+    <h1>Continuing Dialysis Index — Reference Guide</h1>
+    <div class="sub">Page 3 of 4 · 4AT Cognitive Screen · Clinical Frailty Scale · For assessor use only — not patient-facing</div>
+  </div>
+
+  <!-- 4AT guide -->
+  <div class="sec">
+    <div class="sec-hdr bg-slate">4AT — Cognitive Screen (Prerequisite: unscored)</div>
+    <div class="tbl-scroll"><table class="reft">
+      <thead><tr><th style="width:14%">Component</th><th style="width:32%">What to do</th><th style="width:44%">Scoring</th><th style="width:10%">Range</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>[A] Alertness</strong></td>
+          <td>Observe during assessment. Is the patient fully alert, not agitated or drowsy?</td>
+          <td>Normal or mild sleepiness for &lt;10 seconds = <strong>0</strong><br>Clearly abnormal (agitated, drowsy, or fluctuating) = <strong>4</strong></td>
+          <td>0 or 4</td>
+        </tr>
+        <tr>
+          <td><strong>[4] AMT-4</strong></td>
+          <td>Ask the patient: their age, date of birth, name of this place, and the current year.</td>
+          <td>All 4 or 3 correct = <strong>0</strong><br>2 or fewer correct = <strong>1</strong></td>
+          <td>0–1</td>
+        </tr>
+        <tr>
+          <td><strong>[T] Attention</strong></td>
+          <td>Ask the patient to name the months of the year backwards, starting from December.</td>
+          <td>≥ 7 months correct = <strong>0</strong><br>&lt;7 months or refuses = <strong>1</strong><br>Unable to attempt / untestable = <strong>2</strong></td>
+          <td>0–2</td>
+        </tr>
+        <tr>
+          <td><strong>[C] Acute change</strong></td>
+          <td>Ask carer, family, or check nursing notes. Evidence of a significant change in mental status in the past 2 weeks?</td>
+          <td>No = <strong>0</strong><br>Yes (new confusion, disorientation) = <strong>4</strong></td>
+          <td>0 or 4</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <div class="at4-interp">
+      <strong style="font-size:11px;align-self:center">Interpretation:</strong>
+      <span class="at4-i0">0 = Normal</span>
+      <span class="at4-i1">1–3 = Possible impairment — extra time, verify comprehension</span>
+      <span class="at4-i2">4–11 = Likely impairment — adapt, involve carer / LPA</span>
+      <span class="at4-i3">≥12 = Delirium likely — pause SDM; MDT + MCA 2005</span>
+    </div>
+  </div>
+
+  <!-- CFS guide -->
+  <div class="sec">
+    <div class="sec-hdr bg-teal">Clinical Frailty Scale (Domain 1)</div>
+    <div class="tbl-scroll"><table class="reft">
+      <thead><tr><th style="width:6%">CFS</th><th style="width:22%">Category</th><th style="width:33%">Description</th><th style="width:8%">Pts</th><th style="width:31%">Clinical implication</th></tr></thead>
+      <tbody>
+        <tr><td style="text-align:center"><strong>1</strong></td><td><strong>Very fit</strong></td><td>Robust, active, energetic.</td><td style="text-align:center"><strong>0</strong></td><td>No frailty contribution.</td></tr>
+        <tr><td style="text-align:center"><strong>2</strong></td><td><strong>Fit</strong></td><td>No active disease symptoms; less fit than CFS 1.</td><td style="text-align:center"><strong>0</strong></td><td>No frailty contribution.</td></tr>
+        <tr><td style="text-align:center"><strong>3</strong></td><td><strong>Managing well</strong></td><td>Medical problems controlled; not regularly active beyond routine walking.</td><td style="text-align:center"><strong>0</strong></td><td>No frailty contribution.</td></tr>
+        <tr><td style="text-align:center"><strong>4</strong></td><td><strong>Living with Very Mild Frailty</strong></td><td>Not dependent but symptoms limit activities; often tired.</td><td style="text-align:center"><strong>1</strong></td><td>Mild frailty — monitor closely.</td></tr>
+        <tr><td style="text-align:center"><strong>5</strong></td><td><strong>Living with Mild Frailty</strong></td><td>Dependent in IADLs (finances, transport, medications).</td><td style="text-align:center"><strong>2</strong></td><td>Functional dependence emerging; dialysis tolerance reduced.</td></tr>
+        <tr><td style="text-align:center"><strong>6</strong></td><td><strong>Living with Moderate Frailty</strong></td><td>Needs help with all outside activities and housework.</td><td style="text-align:center"><strong>3</strong></td><td>Significant dependence; high symptom burden likely.</td></tr>
+        <tr><td style="text-align:center"><strong>7</strong></td><td><strong>Living with Severe Frailty</strong></td><td>Completely dependent for personal care.</td><td style="text-align:center"><strong>4 + MDT</strong></td><td>Score 4 pts AND direct MDT referral regardless of total.</td></tr>
+        <tr><td style="text-align:center"><strong>8</strong></td><td><strong>Living with Very Severe Frailty</strong></td><td>Completely dependent; approaching end of life.</td><td style="text-align:center"><strong>4 + MDT</strong></td><td>Score 4 pts AND direct MDT referral regardless of total.</td></tr>
+        <tr class="reddanger"><td style="text-align:center"><strong>9</strong></td><td><strong>Terminally ill</strong></td><td>Life expectancy &lt; 6 months.</td><td style="text-align:center">—</td><td>⚠ Direct MDT referral regardless of total (unscored within index).</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="ffooter">4AT © Bellelli et al., Age Ageing 2014;43:496–502. · CFS © Rockwood et al., CMAJ 2005;173:489–95 (v2.0: Rockwood &amp; Theou, Can Geriatr J 2020;23:254–9). · Reproduced for clinical use within The Continuing Dialysis Project service evaluation.</div>
+  <div class="navrow">
+    <button class="nbtn prev" onclick="showPage(1)">← Previous</button>
+    <button class="nbtn next" onclick="showPage(3)">Next: IPOS-Renal →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE 4 ═══════════════════════════════ -->
+<div class="page" id="pg3">
+  <div class="fhdr bg-purple">
+    <h1>IPOS-Renal — Patient Symptom &amp; Concern Form</h1>
+    <div class="sub">Page 4 of 4 · Domain 2: Symptom &amp; Concern Burden · Patient-completed (or nurse-assisted) at start of dialysis session</div>
+  </div>
+
+  <div class="prow">
+    <div class="pf"><label>Patient ID</label><input type="text" id="ipid" placeholder="Enter patient ID"></div>
+    <div class="pf"><label>Date</label><input type="date" id="idate"></div>
+    <div class="pf"><label>Completed by</label><input type="text" id="icompby" placeholder="Patient / Nurse name"></div>
+  </div>
+
+  <div style="background:#f5eeff;border:1px solid #c9a8e8;padding:10px 14px;margin-bottom:12px;font-size:13px;border-radius:3px">
+    <strong>Please answer all questions about the past week.</strong><br>
+    <span style="color:#1a3a5c"><strong>Physical symptoms (Q2):</strong> 0=Not at all &nbsp;1=Slightly &nbsp;2=Moderately &nbsp;3=Severely &nbsp;4=Overwhelmingly</span><br>
+    <span style="color:#5e2d91"><strong>Psychosocial Q3 &amp; Q5:</strong> 0=Not at all &nbsp;1=Occasionally &nbsp;2=Sometimes &nbsp;3=Most of the time &nbsp;4=Always</span><br>
+    <span style="color:#c0392b"><strong>Q6 — Feeling at peace (reversed):</strong> 0=Always &nbsp;1=Most of the time &nbsp;2=Sometimes &nbsp;3=Occasionally &nbsp;4=Not at all</span>
+  </div>
+
+  <div class="tbl-scroll"><table class="ipost">
+    <thead>
+      <tr>
+        <th style="width:36%;text-align:left">Over the past week...</th>
+        <th>0<br><small>Not at all</small></th>
+        <th>1<br><small>Slight</small></th>
+        <th>2<br><small>Moderate</small></th>
+        <th>3<br><small>Severe</small></th>
+        <th>4<br><small>Overwhelming</small></th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody id="iposBody"></tbody>
+  </table></div>
+
+  <div class="alert a-warn" id="iposPsyAlert" style="margin-top:8px"></div>
+
+  <div class="ipos-bottom" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+    <div>
+      <label style="font-size:12px;font-weight:bold;display:block;margin-bottom:4px">Is there anything else affecting you this week?</label>
+      <textarea id="iposExtra" rows="5" placeholder="Patient's free text response..."></textarea>
+    </div>
+    <div style="background:#f5eeff;border:2px solid #5e2d91;padding:13px;border-radius:4px">
+      <div style="font-size:12px;font-weight:bold;color:#5e2d91;margin-bottom:7px">For clinician use — enter total on Page 1 (Domain 2)</div>
+      <div style="font-size:12px;color:#555;margin-bottom:9px">Sum all 17 item scores (each 0–4).</div>
+      <div style="font-size:15px;font-weight:bold;color:#5e2d91">
+        IPOS-Renal Total: <span id="iposTot2" style="background:#5e2d91;color:#fff;padding:2px 14px;border-radius:3px;font-size:20px">—</span> / 68
+      </div>
+      <div id="iposBand" style="margin-top:10px;font-size:12px;padding:7px;border-radius:3px;font-weight:bold"></div>
+    </div>
+  </div>
+
+  <div class="ffooter">IPOS-Renal © Murtagh et al., Palliat Med 2019;33:1044–56. Reproduced for clinical use within The Continuing Dialysis Project service evaluation. Full instrument and licence: https://pos-pal.org</div>
+  <div class="navrow">
+    <button class="nbtn prev" onclick="showPage(2)">← Previous</button>
+    <button class="nbtn print" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>
+</div>
+
+</div><!-- end .app -->
+
+<!-- hidden import input -->
+<input type="file" id="fileIn" accept=".json" style="display:none" onchange="readImport(event)">
+
+<script>
+// ── DATA ────────────────────────────────────────────
+const CFS = [
+  {n:1,lb:'Very fit',ds:'Robust, active, energetic',pts:0,mdt:false},
+  {n:2,lb:'Fit',ds:'No active disease; less fit than CFS 1',pts:0,mdt:false},
+  {n:3,lb:'Managing well',ds:'Medical problems controlled; not regularly active',pts:0,mdt:false},
+  {n:4,lb:'Living with Very Mild Frailty',ds:'Symptoms limit activities; often tired',pts:1,mdt:false},
+  {n:5,lb:'Living with Mild Frailty',ds:'Dependent in IADLs (finances, transport, meds)',pts:2,mdt:false},
+  {n:6,lb:'Living with Moderate Frailty',ds:'Needs help with all outside activities',pts:3,mdt:false},
+  {n:7,lb:'Living with Severe Frailty',ds:'Completely dependent for personal care',pts:4,mdt:true},
+  {n:8,lb:'Living with Very Severe Frailty',ds:'Completely dependent; approaching end of life',pts:4,mdt:true},
+  {n:9,lb:'Terminally ill',ds:'Life expectancy < 6 months — MDT trigger',pts:null,mdt:true}
+];
+
+const IPOS_PHYSICAL = [
+  'Pain','Shortness of breath','Weakness or lack of energy',
+  'Nausea (feeling like you are going to be sick)','Vomiting (being sick)','Poor appetite',
+  'Constipation','Sore or dry mouth','Drowsiness','Poor mobility',
+  'Itching','Difficulty sleeping','Restless legs or difficulty keeping legs still',
+  'Changes in skin','Diarrhoea'
+];
+const IPOS_PSY = [
+  {q:'Q3',text:'Have you been feeling anxious or worried about your illness or treatment?',rev:false},
+  {q:'Q5',text:'Have you been feeling depressed?',rev:false},
+  {q:'Q6',text:'Have you felt at peace?',rev:true}
+];
+const SCALE_PHY = ['Not at all','Slightly','Moderately','Severely','Overwhelmingly'];
+const SCALE_PSY = ['Not at all','Occasionally','Sometimes','Most of the time','Always'];
+const SCALE_REV = ['Always','Most of the time','Sometimes','Occasionally','Not at all'];
+const IPOS_TOTAL_ITEMS = IPOS_PHYSICAL.length + IPOS_PSY.length;
+
+let selCFS = null;
+const iposVals = new Array(IPOS_TOTAL_ITEMS).fill(null);
+
+// ── INIT ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildCFS();
+  buildIPOS();
+  document.getElementById('pdate').value = today();
+  document.getElementById('idate').value = today();
+  autoLoad();
+  updateTrig();
+  calcTotal();
+});
+
+function today(){return new Date().toISOString().slice(0,10)}
+
+function buildCFS(){
+  const g = document.getElementById('cfsGrid');
+  CFS.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'cfs-card';
+    d.id = 'cfs'+c.n;
+    d.onclick = () => pickCFS(c.n);
+    const is9 = c.n===9, is78 = c.n===7||c.n===8;
+    const ptTxt = c.pts===null ? 'Direct MDT trigger (unscored)' : c.pts+' pts'+(c.mdt?' + MDT':'');
+    const col = is9?'color:#c0392b':is78?'color:#b06000':'';
+    d.innerHTML = `<div class="cfs-n" style="${col}">CFS ${c.n}</div>
+      <div class="cfs-lb">${c.lb}</div>
+      <div class="cfs-ds">${c.ds}</div>
+      <div class="cfs-pt" style="${col}">${ptTxt}</div>`;
+    g.appendChild(d);
+  });
+}
+
+function buildIPOS(){
+  const tb = document.getElementById('iposBody');
+
+  // Physical section header
+  const phdr = document.createElement('tr');
+  phdr.className='ipos-sec-hdr ipos-phy-hdr';
+  phdr.innerHTML='<td colspan="7">Physical symptoms (Q2) — Not at all (0) to Overwhelmingly (4)</td>';
+  tb.appendChild(phdr);
+
+  // Physical items
+  IPOS_PHYSICAL.forEach((item,i)=>{
+    tb.appendChild(makeIPOSRow(item,i,SCALE_PHY,false,null));
+  });
+
+  // Psychosocial section header
+  const pshdr = document.createElement('tr');
+  pshdr.className='ipos-sec-hdr ipos-psy-hdr';
+  pshdr.innerHTML='<td colspan="7">Psychosocial concerns (Q3, Q5, Q6) — a score ≥ 2 on any item should prompt referral to renal psychology or social work</td>';
+  tb.appendChild(pshdr);
+
+  // Q3 & Q5 scale note
+  const note35 = document.createElement('tr');
+  note35.className='ipos-scale-note';
+  note35.innerHTML='<td colspan="7">Q3 and Q5: Not at all (0) · Occasionally (1) · Sometimes (2) · Most of the time (3) · Always (4)</td>';
+  tb.appendChild(note35);
+
+  // Q3 & Q5
+  IPOS_PSY.slice(0,2).forEach((item,i)=>{
+    tb.appendChild(makeIPOSRow(item.text, IPOS_PHYSICAL.length+i, SCALE_PSY, false, item.q));
+  });
+
+  // Q6 scale note
+  const note6 = document.createElement('tr');
+  note6.className='ipos-scale-note';
+  note6.innerHTML='<td colspan="7">Q6 reversed scale: Always (0 = no distress) · Most of the time (1) · Sometimes (2) · Occasionally (3) · Not at all (4 = most distressed)</td>';
+  tb.appendChild(note6);
+
+  // Q6
+  tb.appendChild(makeIPOSRow(IPOS_PSY[2].text, IPOS_PHYSICAL.length+2, SCALE_REV, true, 'Q6'));
+}
+
+function makeIPOSRow(item,i,scale,isRev,prefix){
+  const tr = document.createElement('tr');
+  if(prefix) tr.classList.add('ipos-psy-row');
+  if(isRev) tr.classList.add('ipos-rev-row');
+  let html = `<td>${prefix?'<strong>'+prefix+'</strong> — ':''}${item}</td>`;
+  for(let v=0;v<=4;v++){
+    html += `<td class="sc"><span class="rlabel" id="il${i}_${v}" onclick="pickIPOS(${i},${v})" title="${scale[v]}">${v}</span></td>`;
+  }
+  html += `<td class="sc" id="ir${i}" style="font-weight:bold;color:#5e2d91">—</td>`;
+  tr.innerHTML = html;
+  return tr;
+}
+
+// ── NAVIGATION ──────────────────────────────────────
+function showPage(n){
+  document.querySelectorAll('.page').forEach((p,i)=>{p.classList.toggle('active',i===n)});
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',i===n)});
+  if(n===1) sync();
+  calcTotal();
+  window.scrollTo(0,0);
+}
+
+function sync(){
+  const v = id => document.getElementById(id).value;
+  document.getElementById('pid2').value  = v('pid');
+  document.getElementById('pdate2').value= v('pdate');
+  document.getElementById('pasr2').value = v('pasr');
+}
+['pid','pdate','pasr'].forEach(x=>document.getElementById(x).addEventListener('input',sync));
+
+// ── TRIGGER ──────────────────────────────────────────
+function updateTrig(){
+  const any = ['t1','t2','t3','t4','t5','t6'].some(x=>document.getElementById(x).checked);
+  const el = document.getElementById('trigRes');
+  el.className = 'trig-result '+(any?'go':'stop');
+  el.textContent = any
+    ? 'Trigger identified → Complete full assessment below.'
+    : 'No trigger ticked — routine holistic review only. No full assessment needed.';
+}
+
+// ── 4AT ──────────────────────────────────────────────
+function upd4AT(){
+  const ids = ['a4a','a4f','a4t','a4c'];
+  if(ids.some(x=>document.getElementById(x).value==='')){
+    document.getElementById('at4tot').textContent='— / 12';
+    show('at4alert',false);
+    return;
+  }
+  const tot = ids.reduce((s,x)=>s+parseInt(document.getElementById(x).value),0);
+  document.getElementById('at4tot').textContent = tot+' / 12';
+  const el = document.getElementById('at4alert');
+  let cls,txt;
+  if(tot===0){cls='a-ok';txt='✓ 4AT = 0 — Normal. Proceed with assessment.'}
+  else if(tot<=3){cls='a-warn';txt='⚠ 4AT = '+tot+' — Possible impairment. Allow extra time; verify comprehension.'}
+  else if(tot<=11){cls='a-warn';txt='⚠ 4AT = '+tot+' — Likely impairment. Adapt assessment; involve carer or LPA.'}
+  else{cls='a-danger';txt='⛔ 4AT = '+tot+' — Delirium likely. Pause SDM. Refer to MDT; consider MCA 2005.'}
+  el.className='alert '+cls;
+  el.textContent=txt;
+  show('at4alert',true);
+}
+
+// ── CFS ──────────────────────────────────────────────
+function pickCFS(n){
+  selCFS=n;
+  CFS.forEach(c=>{
+    const el=document.getElementById('cfs'+c.n);
+    el.classList.remove('sel','sel78','sel9');
+  });
+  const cls = n===9?'sel9':(n===7||n===8)?'sel78':'sel';
+  document.getElementById('cfs'+n).classList.add(cls);
+  show('cfs78alert', n===7||n===8);
+  show('cfs9alert', n===9);
+  const c=CFS.find(x=>x.n===n);
+  document.getElementById('d1sc').textContent=c.pts===null?'⚠ MDT':(c.pts+' / 4');
+  calcTotal();
+}
+
+// ── DOMAIN 2 ─────────────────────────────────────────
+function updD2(){
+  const raw=document.getElementById('iposIn').value;
+  if(raw===''){document.getElementById('d2sc').textContent='— / 4';calcTotal();return;}
+  const v=parseInt(raw);
+  const pts=v<=9?0:v<=19?2:v<=29?3:4;
+  document.getElementById('d2sc').textContent=pts+' / 4';
+  calcTotal();
+}
+
+// ── DOMAIN 3 ─────────────────────────────────────────
+function updD3(){
+  const cnt=['tb1','tb2','tb3','tb4','tb5','tb6'].filter(x=>document.getElementById(x).checked).length;
+  const pts=cnt<=1?0:cnt<=3?1:2;
+  document.getElementById('d3sc').textContent=pts+' / 2';
+  calcTotal();
+}
+
+// ── DOMAIN 4 ─────────────────────────────────────────
+function updD4(){
+  const no=document.getElementById('sqN').checked;
+  const yes=document.getElementById('sqY').checked;
+  document.getElementById('sqYlbl').className='sqopt'+(yes?' sy':'');
+  document.getElementById('sqNlbl').className='sqopt'+(no?' sn':'');
+  document.getElementById('d4sc').textContent=yes?'0 / 2':no?'2 / 2':'— / 2';
+  show('sqAlert',no);
+  calcTotal();
+}
+
+// ── TOTAL ─────────────────────────────────────────────
+function getD1(){if(selCFS===null)return null;const c=CFS.find(x=>x.n===selCFS);return c.pts}
+function getD2(){const r=document.getElementById('iposIn').value;if(r==='')return null;const v=parseInt(r);return v<=9?0:v<=19?2:v<=29?3:4}
+function getD3(){const n=['tb1','tb2','tb3','tb4','tb5','tb6'].filter(x=>document.getElementById(x).checked).length;return n<=1?0:n<=3?1:2}
+function getD4(){if(document.getElementById('sqN').checked)return 2;if(document.getElementById('sqY').checked)return 0;return null}
+
+function calcTotal(){
+  const d1=getD1(),d2=getD2(),d3=getD3(),d4=getD4();
+  const ts=document.getElementById('totalSc');
+  ['ic0','ic1','ic2','ic3'].forEach(x=>document.getElementById(x).classList.remove('on'));
+  if(selCFS===9){ts.textContent='⚠ MDT';return}
+  if(d1===null||d2===null||d4===null){ts.textContent='— / 12';return}
+  const tot=d1+d2+d3+d4;
+  ts.textContent=(selCFS===7||selCFS===8)?tot+' / 12 + MDT':tot+' / 12';
+  const idx=tot<=2?0:tot<=5?1:tot<=9?2:3;
+  document.getElementById('ic'+idx).classList.add('on');
+}
+
+// ── IPOS ─────────────────────────────────────────────
+function pickIPOS(item,val){
+  iposVals[item]=val;
+  for(let v=0;v<=4;v++){
+    const el=document.getElementById('il'+item+'_'+v);
+    el.className='rlabel'+(v===val?' rs'+v:'');
+  }
+  document.getElementById('ir'+item).textContent=val;
+  calcIPOS();
+}
+
+function calcIPOS(){
+  const filled=iposVals.filter(v=>v!==null);
+  if(!filled.length){
+    document.getElementById('iposTot2').textContent='—';
+    document.getElementById('iposBand').textContent='';
+    show('iposPsyAlert',false);
+    return;
+  }
+  const tot=iposVals.map(v=>v??0).reduce((a,b)=>a+b,0);
+  document.getElementById('iposTot2').textContent=tot;
+  // feed Domain 2
+  document.getElementById('iposIn').value=tot;
+  updD2();
+  // band
+  let bnd,bg;
+  if(tot<=9){bnd='0–9 → 0 pts in Domain 2';bg='#d4f5e2'}
+  else if(tot<=19){bnd='10–19 → 2 pts in Domain 2';bg='#fef3b0'}
+  else if(tot<=29){bnd='20–29 → 3 pts in Domain 2';bg='#fde0c5'}
+  else{bnd='≥30 → 4 pts in Domain 2';bg='#fbd5d5'}
+  const b=document.getElementById('iposBand');
+  b.textContent=bnd;b.style.background=bg;
+  // psychosocial referral check (Q3=idx 15, Q5=idx 16, Q6=idx 17)
+  const psyHighItems=[];
+  const psyNames=['Anxiety (Q3)','Depression (Q5)','Feeling at peace (Q6)'];
+  IPOS_PSY.forEach((_,i)=>{
+    const v=iposVals[IPOS_PHYSICAL.length+i];
+    if(v!==null&&v>=2) psyHighItems.push(psyNames[i]);
+  });
+  const pa=document.getElementById('iposPsyAlert');
+  if(psyHighItems.length){
+    pa.textContent='⚠ Psychosocial score ≥ 2: '+psyHighItems.join(', ')+' — consider referral to renal psychology or social work.';
+    show('iposPsyAlert',true);
+  } else {
+    show('iposPsyAlert',false);
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function show(id,v){const el=document.getElementById(id);el.classList.toggle('show',v)}
+
+// ── GATHER / APPLY ────────────────────────────────────
+function gather(){
+  return{
+    pid:g('pid'),pdate:g('pdate'),pasr:g('pasr'),
+    triggers:['t1','t2','t3','t4','t5','t6'].map(x=>document.getElementById(x).checked),
+    a4a:g('a4a'),a4f:g('a4f'),a4t:g('a4t'),a4c:g('a4c'),
+    selCFS,
+    iposIn:g('iposIn'),
+    tb:['tb1','tb2','tb3','tb4','tb5','tb6'].map(x=>document.getElementById(x).checked),
+    sq:document.querySelector('input[name=sq]:checked')?.value||null,
+    sdm:['sdm1','sdm2','sdm3'].map(x=>document.getElementById(x).checked),
+    sdmNotes:g('sdmNotes'),cname:g('cname'),cdesig:g('cdesig'),csig:g('csig'),
+    ipid:g('ipid'),idate:g('idate'),icompby:g('icompby'),
+    iposVals:[...iposVals],iposExtra:g('iposExtra')
+  }
+}
+
+function g(id){return document.getElementById(id).value}
+function s(id,v){document.getElementById(id).value=v??''}
+
+function apply(d){
+  if(!d)return;
+  s('pid',d.pid);s('pdate',d.pdate);s('pasr',d.pasr);sync();
+  if(d.triggers)['t1','t2','t3','t4','t5','t6'].forEach((x,i)=>{document.getElementById(x).checked=d.triggers[i]||false});
+  updateTrig();
+  ['a4a','a4f','a4t','a4c'].forEach(x=>{if(d[x]!==undefined)s(x,d[x])});
+  upd4AT();
+  if(d.selCFS)pickCFS(d.selCFS);
+  s('iposIn',d.iposIn);updD2();
+  if(d.tb)['tb1','tb2','tb3','tb4','tb5','tb6'].forEach((x,i)=>{document.getElementById(x).checked=d.tb[i]||false});
+  updD3();
+  if(d.sq){document.getElementById('sq'+(d.sq==='yes'?'Y':'N')).checked=true;updD4()}
+  if(d.sdm)['sdm1','sdm2','sdm3'].forEach((x,i)=>{document.getElementById(x).checked=d.sdm[i]||false});
+  s('sdmNotes',d.sdmNotes);s('cname',d.cname);s('cdesig',d.cdesig);s('csig',d.csig);
+  s('ipid',d.ipid);s('idate',d.idate);s('icompby',d.icompby);s('iposExtra',d.iposExtra);
+  if(d.iposVals)d.iposVals.forEach((v,i)=>{if(v!==null)pickIPOS(i,v)});
+  calcTotal();
+}
+
+// ── SAVE / LOAD ───────────────────────────────────────
+function saveLocal(){
+  localStorage.setItem('cdi_form',JSON.stringify(gather()));
+  flash('Saved ✓');
+}
+
+function autoLoad(){
+  const raw=localStorage.getItem('cdi_form');
+  if(raw){try{apply(JSON.parse(raw))}catch(e){}}
+}
+
+function flash(msg){
+  const el=document.getElementById('saveMsg');
+  el.textContent=msg;
+  setTimeout(()=>el.textContent='',3000);
+}
+
+function clearAll(){
+  if(!confirm('Clear all form data? This cannot be undone.'))return;
+  localStorage.removeItem('cdi_form');
+  location.reload();
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────
+function exportJSON(){
+  const data=gather();
+  const pid=data.pid||'patient';
+  const dt=data.pdate||today();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`CDIndex_${pid}_${dt}.json`;
+  a.click();
+  flash('Exported ✓');
+}
+
+function importJSON(){document.getElementById('fileIn').click()}
+
+function readImport(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      apply(JSON.parse(ev.target.result));
+      saveLocal();
+      flash('Imported ✓');
+    }catch(err){alert('Could not read file — make sure it is a valid CD Index JSON export.')}
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+// auto-save every 30 s
+setInterval(saveLocal,30000);
+</script>
+</body>
+</html>
